@@ -1,5 +1,7 @@
 package cpu
 
+import "github.com/GustavoGarone/ego/internal/bus"
+
 type Cpu struct {
 	// Accumulator, alongside with the ALU, supports the
 	// status register for carrying, overflow etc.
@@ -21,11 +23,12 @@ type Cpu struct {
 	// the RTS/JMP/JSR/Branch instructions.
 	ProgramCounter uint16
 
-	// The ROM the CPU should read from
-	Program []uint8
+	// Bus is the system bus the CPU is connected to.  It allows the CPU to read and write
+	// to memory and peripherals.
+	bus *bus.Bus
 }
 
-func NewCpu(program []uint8) *Cpu {
+func NewCpu(bus *bus.Bus) *Cpu {
 	return &Cpu{
 		Accumulator:    0,
 		X:              0,
@@ -33,7 +36,7 @@ func NewCpu(program []uint8) *Cpu {
 		Status:         0,
 		Stack:          0,
 		ProgramCounter: 0,
-		Program:        program,
+		bus:            bus,
 	}
 }
 
@@ -49,7 +52,7 @@ func (c *Cpu) Run() {
 
 // Fetch gets the current opcode
 func (c *Cpu) Fetch() uint8 {
-	return c.Program[c.ProgramCounter]
+	return c.bus.Rom[c.ProgramCounter]
 }
 
 // Execute will handle a program instruction. Returns true if execution is done.
@@ -103,4 +106,40 @@ func (c *Cpu) Execute(opcode uint8) bool {
 		c.clv()
 	}
 	return false
+}
+
+func (c *Cpu) Write(address uint16, data uint8) {
+	c.bus.Write(address, data)
+}
+
+func (c *Cpu) Write16(address uint16, data uint16) {
+	c.bus.Write16(address, data)
+}
+
+func (c *Cpu) Read(address uint16) uint8 {
+	return c.bus.Read(address)
+}
+
+func (c *Cpu) Read16(address uint16) uint16 {
+	return c.bus.Read16(address)
+}
+
+func (c *Cpu) updateZeroFlag(result uint8) {
+	if result == 0 {
+		// result is 0, set zero bit to 1
+		c.Status |= 0b0000_0010
+	} else {
+		// result is not 0, set zero bit to 0
+		c.Status &= 0b1111_1101
+	}
+}
+
+func (c *Cpu) updateNegativeFlag(result uint8) {
+	if result&0b1000_0000 != 0 {
+		// result negative is 1, set negative to 1
+		c.Status |= 0b1000_0000
+	} else {
+		// result negative is 0, set negative to 0
+		c.Status &= 0b0111_1111
+	}
 }
