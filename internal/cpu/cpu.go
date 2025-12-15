@@ -37,28 +37,71 @@ func NewCpu(program []uint8) *Cpu {
 	}
 }
 
+func (c *Cpu) Run() {
+	for {
+		opcode := c.Fetch()
+		done := c.Execute(opcode)
+		if done {
+			break
+		}
+	}
+}
+
+// Fetch gets the current opcode
 func (c *Cpu) Fetch() uint8 {
 	return c.Program[c.ProgramCounter]
 }
 
-func (c *Cpu) Execute(opcode uint8) {
+// Execute will handle a program instruction. Returns true if execution is done.
+func (c *Cpu) Execute(opcode uint8) bool {
 	c.ProgramCounter += 1
 	switch opcode {
 	case 0x00:
-		return
+		return true
 	case 0xa9:
-		c.ProgramCounter += 1 // a9 comes with an argument
-		arg := c.Fetch()
-		c.lda(arg)
+		c.lda()
+	case 0xaa:
+		c.tax()
+	case 0xa8:
+		c.tay()
 	}
+
+	return false
 }
 
-func (c *Cpu) lda(value uint8) {
-	c.Accumulator = value
-	c.updateZeroAndNegativeFlags(c.Accumulator)
+// tay copies the current contents of the accumulator into the X register.
+// flags:
+//   - Zero: set if Y = 0.
+//   - Negative: set if bit 7 of Y is set.
+func (c *Cpu) tay() {
+	c.Y = c.Accumulator
+	c.updateNegativeFlag(c.Y)
+	c.updateZeroFlag(c.Y)
 }
 
-func (c *Cpu) updateZeroAndNegativeFlags(result uint8) {
+// tax copies the current contents of the accumulator into the X register.
+// flags:
+//   - Zero: set if X = 0.
+//   - Negative: set if bit 7 of X is set.
+func (c *Cpu) tax() {
+	c.X = c.Accumulator
+	c.updateNegativeFlag(c.X)
+	c.updateZeroFlag(c.X)
+}
+
+// lda loads a byte of memory into the accumulator
+// flags:
+//   - Zero: set if A = 0.
+//   - Negative: set if bit 7 of A is set.
+func (c *Cpu) lda() {
+	c.ProgramCounter += 1
+	arg := c.Fetch()
+	c.Accumulator = arg
+	c.updateNegativeFlag(c.Accumulator)
+	c.updateZeroFlag(c.Accumulator)
+}
+
+func (c *Cpu) updateZeroFlag(result uint8) {
 	if result == 0 {
 		// result is 0, set zero bit to 1
 		c.Status |= 0b0000_0010
@@ -66,7 +109,9 @@ func (c *Cpu) updateZeroAndNegativeFlags(result uint8) {
 		// result is not 0, set zero bit to 0
 		c.Status &= 0b1111_1101
 	}
+}
 
+func (c *Cpu) updateNegativeFlag(result uint8) {
 	if result&0b1000_0000 != 0 {
 		// result negative is 1, set negative to 1
 		c.Status |= 0b1000_0000
