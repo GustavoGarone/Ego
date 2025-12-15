@@ -57,15 +57,69 @@ func (c *Cpu) Execute(opcode uint8) bool {
 	switch opcode {
 	case 0x00:
 		return true
+	case 0xea:
+		return false // NOP
 	case 0xa9:
 		c.lda()
+	case 0xa2:
+		c.ldx()
+	case 0xa0:
+		c.ldy()
 	case 0xaa:
 		c.tax()
 	case 0xa8:
 		c.tay()
+	case 0x8a:
+		c.txa()
+	case 0x98:
+		c.tya()
 	}
 
 	return false
+}
+
+// lda loads a byte of memory into the X register.
+// flags:
+//   - Zero: set if X = 0.
+//   - Negative: set if bit 7 of X is set.
+func (c *Cpu) ldx() {
+	c.ProgramCounter += 1
+	arg := c.Fetch()
+	c.X = arg
+	c.updateNegativeFlag(c.X)
+	c.updateZeroFlag(c.X)
+}
+
+// lda loads a byte of memory into the Y register.
+// flags:
+//   - Zero: set if Y = 0.
+//   - Negative: set if bit 7 of Y is set.
+func (c *Cpu) ldy() {
+	c.ProgramCounter += 1
+	arg := c.Fetch()
+	c.Y = arg
+	c.updateNegativeFlag(c.Y)
+	c.updateZeroFlag(c.Y)
+}
+
+// tya copies the current contents of the Y register into the Accumulator.
+// flags:
+//   - Zero: set if accumulator = 0.
+//   - Negative: set if bit 7 of accumulator is set.
+func (c *Cpu) tya() {
+	c.Accumulator = c.Y
+	c.updateNegativeFlag(c.Accumulator)
+	c.updateZeroFlag(c.Accumulator)
+}
+
+// tya copies the current contents of the X register into the Accumulator.
+// flags:
+//   - Zero: set if accumulator = 0.
+//   - Negative: set if bit 7 of accumulator is set.
+func (c *Cpu) txa() {
+	c.Accumulator = c.Y
+	c.updateNegativeFlag(c.Accumulator)
+	c.updateZeroFlag(c.Accumulator)
 }
 
 // tay copies the current contents of the accumulator into the X register.
