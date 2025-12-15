@@ -40,10 +40,10 @@ func NewCpu(program []uint8) *Cpu {
 func (c *Cpu) Run() {
 	for {
 		opcode := c.Fetch()
-		done := c.Execute(opcode)
-		if done {
+		if c.Execute(opcode) {
 			break
 		}
+		c.ProgramCounter += 1
 	}
 }
 
@@ -54,7 +54,6 @@ func (c *Cpu) Fetch() uint8 {
 
 // Execute will handle a program instruction. Returns true if execution is done.
 func (c *Cpu) Execute(opcode uint8) bool {
-	c.ProgramCounter += 1
 	switch opcode {
 	case 0x00:
 		return true
