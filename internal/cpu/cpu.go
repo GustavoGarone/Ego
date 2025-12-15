@@ -73,6 +73,20 @@ func (c *Cpu) Execute(opcode uint8) bool {
 		c.txa()
 	case 0x98:
 		c.tya()
+	case 0x69:
+		c.adc()
+	case 0xe9:
+		c.sbc()
+	case 0xc6:
+		c.dec()
+	case 0xe8:
+		c.inx()
+	case 0xc8:
+		c.iny()
+	case 0xca:
+		c.dex()
+	case 0x88:
+		c.dey()
 	}
 
 	return false
