@@ -77,3 +77,23 @@ func (c *Cpu) Execute(opcode uint8) bool {
 
 	return false
 }
+
+func (c *Cpu) updateZeroFlag(result uint8) {
+	if result == 0 {
+		// result is 0, set zero bit to 1
+		c.Status |= 0b0000_0010
+	} else {
+		// result is not 0, set zero bit to 0
+		c.Status &= 0b1111_1101
+	}
+}
+
+func (c *Cpu) updateNegativeFlag(result uint8) {
+	if result&0b1000_0000 != 0 {
+		// result negative is 1, set negative to 1
+		c.Status |= 0b1000_0000
+	} else {
+		// result negative is 0, set negative to 0
+		c.Status &= 0b0111_1111
+	}
+}
