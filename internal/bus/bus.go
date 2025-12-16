@@ -1,8 +1,15 @@
 package bus
 
 type Bus struct {
-	Ram [0x800]uint8
-	Rom [0x8000]uint8
+	Ram []uint8
+	Rom []uint8
+}
+
+func NewBus(ram []uint8, rom []uint8) *Bus {
+	return &Bus{
+		Ram: ram,
+		Rom: rom,
+	}
 }
 
 func (b *Bus) Read(address uint16) uint8 {
