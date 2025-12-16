@@ -63,7 +63,7 @@ func (c *Cpu) Execute(opcode uint8) bool {
 	case 0xea:
 		return false // NOP
 	case 0xa9:
-		c.lda()
+		c.lda(Immediate)
 	case 0xa2:
 		c.ldx()
 	case 0xa0:

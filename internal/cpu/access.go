@@ -28,9 +28,9 @@ func (c *Cpu) ldy() {
 // flags:
 //   - Zero: set if A = 0.
 //   - Negative: set if bit 7 of A is set.
-func (c *Cpu) lda() {
+func (c *Cpu) lda(mode AddressingMode) {
 	c.ProgramCounter += 1
-	arg := c.Fetch()
+	arg := mode.Read(c, 0)
 	c.Accumulator = arg
 	c.updateNegativeFlag(c.Accumulator)
 	c.updateZeroFlag(c.Accumulator)
