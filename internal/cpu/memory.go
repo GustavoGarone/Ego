@@ -1,10 +1,4 @@
-package memory
-
-import (
-	"errors"
-
-	"github.com/GustavoGarone/ego/internal/cpu"
-)
+package cpu
 
 const ZERO_PAGE uint16 = 0x0
 
