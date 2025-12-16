@@ -1,5 +1,7 @@
 package cpu
 
+import "errors"
+
 const ZERO_PAGE uint16 = 0x0
 
 type AddressingMode uint8
@@ -7,7 +9,7 @@ type AddressingMode uint8
 const (
 	Implicit AddressingMode = iota
 	Accumulator
-	Imeddiate
+	Immediate
 	ZeroPage
 	ZeroPageX
 	ZeroPageY
@@ -23,7 +25,7 @@ const (
 	None
 )
 
-func (mode AddressingMode) absoluteAddress(cpu *cpu.Cpu, base uint16) *Address {
+func (mode AddressingMode) absoluteAddress(cpu *Cpu, base uint16) *Address {
 	switch mode {
 	case ZeroPage:
 		return newAddress(false, ZERO_PAGE+base)
@@ -67,7 +69,7 @@ func (mode AddressingMode) absoluteAddress(cpu *cpu.Cpu, base uint16) *Address {
 	panic(errors.New("addressing mode not implemented"))
 }
 
-func (mode AddressingMode) Write(cpu *cpu.Cpu, position uint16, data uint8) {
+func (mode AddressingMode) Write(cpu *Cpu, position uint16, data uint8) {
 	if mode == Accumulator {
 		cpu.Accumulator = data
 		return
@@ -85,13 +87,13 @@ func (mode AddressingMode) Write(cpu *cpu.Cpu, position uint16, data uint8) {
 	cpu.Write(address.Value, data)
 }
 
-func (mode AddressingMode) Read(cpu *cpu.Cpu, position uint16) uint8 {
+func (mode AddressingMode) Read(cpu *Cpu, position uint16) uint8 {
 	if mode == Accumulator {
 		return cpu.Accumulator
 	}
 
-	if mode == Imeddiate {
-		return cpu.Read(cpu.ProgramCounter)
+	if mode == Immediate {
+		return cpu.Fetch()
 	}
 
 	var address *Address
