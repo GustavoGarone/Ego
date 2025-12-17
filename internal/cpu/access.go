@@ -4,10 +4,9 @@ package cpu
 // flags:
 //   - Zero: set if X = 0.
 //   - Negative: set if bit 7 of X is set.
-func (c *Cpu) ldx() {
+func (c *Cpu) ldx(mode AddressingMode) {
 	c.ProgramCounter += 1
-	arg := c.Fetch()
-	c.X = arg
+	c.X = mode.Read(c, 0)
 	c.updateNegativeFlag(c.X)
 	c.updateZeroFlag(c.X)
 }
@@ -16,10 +15,9 @@ func (c *Cpu) ldx() {
 // flags:
 //   - Zero: set if Y = 0.
 //   - Negative: set if bit 7 of Y is set.
-func (c *Cpu) ldy() {
+func (c *Cpu) ldy(mode AddressingMode) {
 	c.ProgramCounter += 1
-	arg := c.Fetch()
-	c.Y = arg
+	c.Y = mode.Read(c, 0)
 	c.updateNegativeFlag(c.Y)
 	c.updateZeroFlag(c.Y)
 }
@@ -30,8 +28,22 @@ func (c *Cpu) ldy() {
 //   - Negative: set if bit 7 of A is set.
 func (c *Cpu) lda(mode AddressingMode) {
 	c.ProgramCounter += 1
-	arg := mode.Read(c, 0)
-	c.Accumulator = arg
+	c.Accumulator = mode.Read(c, 0)
 	c.updateNegativeFlag(c.Accumulator)
 	c.updateZeroFlag(c.Accumulator)
+}
+
+// sta stores the Accumulator value into memory
+func (c *Cpu) sta(mode AddressingMode) {
+	mode.Write(c, 0, c.Accumulator)
+}
+
+// stx Stores the X register into memory
+func (c *Cpu) stx(mode AddressingMode) {
+	mode.Write(c, 0, c.X)
+}
+
+// sty Stores the Y register into memory
+func (c *Cpu) sty(mode AddressingMode) {
+	mode.Write(c, 0, c.Y)
 }

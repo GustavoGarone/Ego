@@ -64,10 +64,66 @@ func (c *Cpu) Execute(opcode uint8) bool {
 		return false // NOP
 	case 0xa9:
 		c.lda(Immediate)
+	case 0xa5:
+		c.lda(ZeroPage)
+	case 0xb5:
+		c.lda(ZeroPageX)
+	case 0xad:
+		c.lda(Absolute)
+	case 0xbd:
+		c.lda(AbsoluteX)
+	case 0xb9:
+		c.lda(AbsoluteY)
+	case 0xa1:
+		c.lda(IndirectX)
+	case 0xb1:
+		c.lda(IndirectY)
 	case 0xa2:
-		c.ldx()
+		c.ldx(Immediate)
+	case 0xa6:
+		c.ldx(ZeroPage)
+	case 0xb6:
+		c.ldx(ZeroPageY)
+	case 0xae:
+		c.ldx(Absolute)
+	case 0xbe:
+		c.ldx(AbsoluteY)
 	case 0xa0:
-		c.ldy()
+		c.ldy(Immediate)
+	case 0xa4:
+		c.ldy(ZeroPage)
+	case 0xb4:
+		c.ldy(ZeroPageX)
+	case 0xac:
+		c.ldy(Absolute)
+	case 0xbc:
+		c.ldy(AbsoluteX)
+	case 0x85:
+		c.sta(ZeroPage)
+	case 0x95:
+		c.sta(ZeroPageX)
+	case 0x8d:
+		c.sta(Absolute)
+	case 0x9d:
+		c.sta(AbsoluteX)
+	case 0x99:
+		c.sta(AbsoluteY)
+	case 0x81:
+		c.sta(IndirectX)
+	case 0x91:
+		c.sta(IndirectY)
+	case 0x86:
+		c.stx(ZeroPage)
+	case 0x96:
+		c.stx(ZeroPageY)
+	case 0x8e:
+		c.stx(Absolute)
+	case 0x84:
+		c.sty(ZeroPage)
+	case 0x94:
+		c.sty(ZeroPageX)
+	case 0x8c:
+		c.sty(Absolute)
 	case 0xaa:
 		c.tax()
 	case 0xa8:
