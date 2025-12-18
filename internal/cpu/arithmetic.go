@@ -12,12 +12,13 @@ package cpu
 func (c *Cpu) adc(mode AddressingMode) {
 	memory := mode.Read(c, 0)
 	carryFlag := (c.Status & 1)
-	result := c.Accumulator + mode.Read(c, 0) + carryFlag
-	if result > 0xff {
+	resulting := uint16(c.Accumulator) + uint16(mode.Read(c, 0)) + uint16(carryFlag)
+	if resulting > 0xff {
 		c.Status |= 0b0000_0001
 	} else {
 		c.Status &= 0b1111_1110
 	}
+	result := uint8(resulting)
 	// see http://www.6502.org/tutorials/vflag.html
 	if ((result ^ c.Accumulator) & (result ^ memory) & 0x80) != 0 {
 		c.Status |= 0b0100_0000
@@ -41,12 +42,13 @@ func (c *Cpu) adc(mode AddressingMode) {
 func (c *Cpu) sbc(mode AddressingMode) {
 	memory := mode.Read(c, 0)
 	carryFlag := (c.Status & 1)
-	result := c.Accumulator - mode.Read(c, 0) - ^carryFlag
-	if ^result < 0xff {
+	resulting := uint16(c.Accumulator) - uint16(mode.Read(c, 0)) - uint16(^carryFlag)
+	if ^resulting < 0xff {
 		c.Status |= 0b0000_0001
 	} else {
 		c.Status &= 0b1111_1110
 	}
+	result := uint8(resulting)
 	if ((result ^ c.Accumulator) & (result ^ ^memory) & 0x80) != 0 {
 		c.Status |= 0b0100_0000
 	} else {
