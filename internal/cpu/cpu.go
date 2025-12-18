@@ -133,11 +133,45 @@ func (c *Cpu) Execute(opcode uint8) bool {
 	case 0x98:
 		c.tya()
 	case 0x69:
-		c.adc()
+		c.adc(Immediate)
+	case 0x65:
+		c.adc(ZeroPage)
+	case 0x75:
+		c.adc(ZeroPageX)
+	case 0x6d:
+		c.adc(Absolute)
+	case 0x7d:
+		c.adc(AbsoluteX)
+	case 0x79:
+		c.adc(AbsoluteY)
+	case 0x61:
+		c.adc(IndirectX)
+	case 0x71:
+		c.adc(IndirectY)
 	case 0xe9:
-		c.sbc()
+		c.sbc(Immediate)
+	case 0xe5:
+		c.sbc(ZeroPage)
+	case 0xf5:
+		c.sbc(ZeroPageX)
+	case 0xed:
+		c.sbc(Absolute)
+	case 0xfd:
+		c.sbc(AbsoluteX)
+	case 0xf9:
+		c.sbc(AbsoluteY)
+	case 0xe1:
+		c.sbc(IndirectX)
+	case 0xf1:
+		c.sbc(IndirectY)
 	case 0xc6:
-		c.dec()
+		c.dec(ZeroPage)
+	case 0xd6:
+		c.dec(ZeroPageX)
+	case 0xce:
+		c.dec(Absolute)
+	case 0xde:
+		c.dec(AbsoluteX)
 	case 0xe8:
 		c.inx()
 	case 0xc8:
