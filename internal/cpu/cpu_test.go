@@ -23,7 +23,7 @@ func TestLda(t *testing.T) {
 
 func TestRun(t *testing.T) {
 	var accumulatorParam uint8 = 0xc0
-	program := []uint8{0xa9, 0xc0, 0xaa, 0x00}
+	program := []uint8{0xa9, accumulatorParam, 0xaa, 0x00}
 	bus := bus.NewBus([]uint8{0}, program)
 	cpu := NewCpu(bus)
 	cpu.Run()
