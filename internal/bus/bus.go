@@ -13,7 +13,8 @@ func NewBus(ram []uint8, rom []uint8) *Bus {
 }
 
 func (b *Bus) Read(address uint16) uint8 {
-	return b.Ram[address]
+	// & 0x07FF mods every two kilobytes to account for mirroring
+	return b.Ram[address&0x07FF]
 }
 
 func (b *Bus) Read16(address uint16) uint16 {
@@ -23,7 +24,7 @@ func (b *Bus) Read16(address uint16) uint16 {
 }
 
 func (b *Bus) Write(address uint16, data uint8) {
-	b.Ram[address] = data
+	b.Ram[address&0x07FF] = data
 }
 
 func (b *Bus) Write16(address uint16, data uint16) {
