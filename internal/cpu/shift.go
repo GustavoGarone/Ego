@@ -7,9 +7,9 @@ package cpu
 //   - Zero: set if result == 0
 //   - Negative: set if result's bit 7 is set
 func (c *Cpu) asl(mode AddressingMode) {
-	value := mode.Read(c, 0)
+	value := mode.Read(c)
 	result := value << 1
-	mode.Write(c, 0, result)
+	mode.Write(c, result)
 
 	c.updateNegativeFlag(result)
 	c.updateZeroFlag(result)

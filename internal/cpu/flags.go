@@ -1,18 +1,20 @@
 package cpu
 
-// 7  bit  0
-// ---- ----
-// NV1B DIZC
-// |||| ||||
-// |||| |||+- Carry
-// |||| ||+-- Zero
-// |||| |+--- Interrupt Disable
-// |||| +---- Decimal
-// |||+------ (No CPU effect; see: the B flag)
-// ||+------- (No CPU effect; always pushed as 1)
-// |+-------- Overflow
-// +--------- Negative
-func (c *Cpu) updateZeroFlag(result uint8) {
+/// 7  bit  0
+/// ---- ----
+/// NV1B DIZC
+/// |||| ||||
+/// |||| |||+- Carry
+/// |||| ||+-- Zero
+/// |||| |+--- Interrupt Disable
+/// |||| +---- Decimal
+/// |||+------ (No CPU effect; see: the B flag)
+/// ||+------- (No CPU effect; always pushed as 1)
+/// |+-------- Overflow
+/// +--------- Negative
+
+// updateZeroFlag sets the Z status flag to 1 if the result is zero.
+func (c *Cpu) updateZeroFlag(result byte) {
 	if result == 0 {
 		// result is 0, set zero bit to 1
 		c.Status |= 0b0000_0010
@@ -22,7 +24,8 @@ func (c *Cpu) updateZeroFlag(result uint8) {
 	}
 }
 
-func (c *Cpu) updateNegativeFlag(result uint8) {
+// updateNegativeFlag sets the N status flag to 1 if result is negative.
+func (c *Cpu) updateNegativeFlag(result byte) {
 	if result&0b1000_0000 != 0 {
 		// result negative is 1, set negative to 1
 		c.Status |= 0b1000_0000

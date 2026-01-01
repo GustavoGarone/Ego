@@ -10,15 +10,15 @@ package cpu
 //     Therefore, the overflow flag is set if result < -128 or result > 127
 //   - Negative: set if bit 7 of result is set.
 func (c *Cpu) adc(mode AddressingMode) {
-	memory := mode.Read(c, 0)
+	memory := mode.Read(c)
 	carryFlag := (c.Status & 1)
-	resulting := uint16(c.Accumulator) + uint16(mode.Read(c, 0)) + uint16(carryFlag)
+	resulting := uint16(c.Accumulator) + uint16(mode.Read(c)) + uint16(carryFlag)
 	if resulting > 0xff {
 		c.Status |= 0b0000_0001
 	} else {
 		c.Status &= 0b1111_1110
 	}
-	result := uint8(resulting)
+	result := byte(resulting)
 	// see http://www.6502.org/tutorials/vflag.html
 	if ((result ^ c.Accumulator) & (result ^ memory) & 0x80) != 0 {
 		c.Status |= 0b0100_0000
@@ -40,15 +40,15 @@ func (c *Cpu) adc(mode AddressingMode) {
 //     Therefore, the overflow flag is set if result < -128 or result > 127
 //   - Negative: set if bit 7 of result is set.
 func (c *Cpu) sbc(mode AddressingMode) {
-	memory := mode.Read(c, 0)
+	memory := mode.Read(c)
 	carryFlag := (c.Status & 1)
-	resulting := uint16(c.Accumulator) - uint16(mode.Read(c, 0)) - uint16(^carryFlag)
+	resulting := uint16(c.Accumulator) - uint16(mode.Read(c)) - uint16(^carryFlag)
 	if ^resulting < 0xff {
 		c.Status |= 0b0000_0001
 	} else {
 		c.Status &= 0b1111_1110
 	}
-	result := uint8(resulting)
+	result := byte(resulting)
 	if ((result ^ c.Accumulator) & (result ^ ^memory) & 0x80) != 0 {
 		c.Status |= 0b0100_0000
 	} else {
@@ -67,9 +67,9 @@ func (c *Cpu) sbc(mode AddressingMode) {
 //   - Zero: set if resulting X = 0.
 //   - Negative: set if bit 7 of resulting X is set.
 func (c *Cpu) dec(mode AddressingMode) {
-	value := mode.Read(c, 0)
+	value := mode.Read(c)
 	value -= 1
-	mode.Write(c, 0, value)
+	mode.Write(c, value)
 	c.updateNegativeFlag(value)
 	c.updateZeroFlag(value)
 }
