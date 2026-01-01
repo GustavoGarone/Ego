@@ -1,34 +1,38 @@
 package cpu
 
-import "github.com/GustavoGarone/ego/internal/bus"
+import (
+	"fmt"
+
+	"github.com/GustavoGarone/ego/internal/bus"
+)
 
 type Cpu struct {
 	// Accumulator, alongside with the ALU, supports the
 	// status register for carrying, overflow etc.
-	Accumulator uint8
+	Accumulator byte
 
 	// X and Y are used for several addressing modes.
-	X, Y uint8
+	X, Y byte
 
 	// Stack can be accessed using interrupts, pulls, pushes
 	// and transfers.
-	Stack uint8
+	Stack byte
 
 	// Status is used by the ALU. PHP, PLP, arithmetic,
 	// testing, and branch instructions can access this register.
-	Status uint8
+	Status byte
 
 	// ProgramCounter can be accessed either by allowing the CPU's
 	// fetch logic increment the address bus, an interrupt and using
 	// the RTS/JMP/JSR/Branch instructions.
 	ProgramCounter uint16
 
-	// Bus is the system bus the CPU is connected to.  It allows the CPU to read and write
+	// Bus is the system bus the CPU is connected to. It allows the CPU to read and write
 	// to memory and peripherals.
 	bus *bus.Bus
 }
 
-func NewCpu(bus *bus.Bus) *Cpu {
+func New(bus *bus.Bus) *Cpu {
 	return &Cpu{
 		Accumulator:    0,
 		X:              0,
@@ -40,25 +44,87 @@ func NewCpu(bus *bus.Bus) *Cpu {
 	}
 }
 
+// Resets the CPU, setting registers to zero and defaulting the stack, status
+// and program counter registers to the default `reset` states.
+func (c *Cpu) Reset() {
+	c.Accumulator = 0
+	c.X = 0
+	c.Y = 0
+	c.Stack = 0xFD
+	c.Status = 0x24
+	c.ProgramCounter = c.bus.Read16(0xFFFC)
+}
+
+// Runs the Fetch/Decode/Execute loop.
 func (c *Cpu) Run() {
 	for {
 		opcode := c.Fetch()
+		fmt.Printf("Got opcode: %x\n", opcode)
 		if c.Execute(opcode) {
 			break
 		}
-		c.ProgramCounter += 1
 	}
 }
 
 // Fetch gets the current opcode
-func (c *Cpu) Fetch() uint8 {
-	return c.bus.Rom[c.ProgramCounter]
+func (c *Cpu) Fetch() byte {
+	data := c.bus.Read(c.ProgramCounter)
+	c.ProgramCounter += 1
+	return data
+}
+
+// Writes data to the address in the bus
+func (c *Cpu) Write(address uint16, data byte) {
+	c.bus.Write(address, data)
+}
+
+// Write16 writes 2 bytes of data to the address in the bus
+func (c *Cpu) Write16(address uint16, data uint16) {
+	c.bus.Write16(address, data)
+}
+
+// Reads from the address in the bus
+func (c *Cpu) Read(address uint16) byte {
+	return c.bus.Read(address)
+}
+
+// Read16 reads 2 bytes of data from the address in the bus
+func (c *Cpu) Read16(address uint16) uint16 {
+	return c.bus.Read16(address)
+}
+
+// pushes the value to the stack
+func (c *Cpu) push(data byte) {
+	c.Write(0x0100+uint16(c.Stack), data)
+	c.Stack -= 1
+}
+
+// push16 pushes 2 bytes of data to the stack
+func (c *Cpu) push16(data uint16) {
+	low := byte(data >> 8)
+	high := byte(data & 0xFF)
+	c.push(high)
+	c.push(low)
+}
+
+// pops the value from the stack
+func (c *Cpu) pop() byte {
+	c.Stack += 1
+	return c.Read(0x0100 + uint16(c.Stack))
+}
+
+// pops 2 bytes of data from the stack
+func (c *Cpu) pop16() uint16 {
+	low := uint16(c.pop())
+	high := uint16(c.pop())
+	return (high << 8) | low
 }
 
 // Execute will handle a program instruction. Returns true if execution is done.
-func (c *Cpu) Execute(opcode uint8) bool {
+func (c *Cpu) Execute(opcode byte) bool {
 	switch opcode {
 	case 0x00:
+		c.brk()
 		return true
 	case 0xea:
 		return false // NOP
@@ -194,22 +260,14 @@ func (c *Cpu) Execute(opcode uint8) bool {
 		c.sed()
 	case 0xb8:
 		c.clv()
+	case 0x4c:
+		c.jmp(Absolute)
+	case 0x6c:
+		c.jmp(None)
+	case 0x20:
+		c.jsr()
+	case 0x60:
+		c.rts()
 	}
 	return false
-}
-
-func (c *Cpu) Write(address uint16, data uint8) {
-	c.bus.Write(address, data)
-}
-
-func (c *Cpu) Write16(address uint16, data uint16) {
-	c.bus.Write16(address, data)
-}
-
-func (c *Cpu) Read(address uint16) uint8 {
-	return c.bus.Read(address)
-}
-
-func (c *Cpu) Read16(address uint16) uint16 {
-	return c.bus.Read16(address)
 }
