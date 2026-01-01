@@ -31,11 +31,11 @@ func (mode AddressingMode) absoluteAddress(cpu *Cpu, base uint16) *Address {
 		return newAddress(false, ZERO_PAGE+base)
 
 	case ZeroPageX:
-		address := uint16(byte(base) + cpu.X)
+		address := uint16(byte(base + uint16(cpu.X)))
 		return newAddress(false, address)
 
 	case ZeroPageY:
-		var address = uint16(byte(base) + cpu.Y)
+		address := uint16(byte(base + uint16(cpu.Y)))
 		return newAddress(false, address)
 
 	case Absolute:
@@ -50,24 +50,25 @@ func (mode AddressingMode) absoluteAddress(cpu *Cpu, base uint16) *Address {
 		return newAddress(isPageCrossed(base, address), address)
 
 	case IndirectX:
-		pointer := byte(base + uint16(cpu.X))
-		low := cpu.Read(uint16(pointer))
-		high := cpu.Read(uint16(byte(pointer + 1)))
+		ptr := byte(base + uint16(cpu.X))
+		low := cpu.Read(uint16(ptr))
+		high := cpu.Read(uint16(ptr + 1))
 		address := uint16(high)<<8 | uint16(low)
 		return newAddress(false, address)
 
 	case IndirectY, IndirectYCross:
-		low := cpu.Read(uint16(base))
-		high := cpu.Read(uint16(byte(base) + 1))
+		ptr := uint8(base)
+		low := cpu.Read(uint16(ptr))
+		high := cpu.Read(uint16(ptr + 1))
 		derefBase := uint16(high)<<8 | uint16(low)
 		deref := derefBase + uint16(cpu.Y)
 		return newAddress(isPageCrossed(derefBase, deref), deref)
 
 	case Relative:
 		offset := int8(cpu.Read(cpu.ProgramCounter))
-		cpu.ProgramCounter++
-		address := uint16(int32(cpu.ProgramCounter) + int32(offset))
-		return newAddress(isPageCrossed(cpu.ProgramCounter, address), address)
+		cpu.ProgramCounter += 1
+		jumpAddr := uint16(int32(cpu.ProgramCounter) + int32(offset))
+		return newAddress(isPageCrossed(cpu.ProgramCounter, jumpAddr), jumpAddr)
 	}
 
 	panic(errors.New("addressing mode not implemented"))
@@ -79,17 +80,7 @@ func (mode AddressingMode) Write(cpu *Cpu, data byte) {
 		return
 	}
 
-	var address *Address
-	if mode == Absolute || mode == AbsoluteX || mode == AbsoluteY {
-		arg := cpu.Read16(cpu.ProgramCounter)
-		address = mode.absoluteAddress(cpu, arg)
-		cpu.ProgramCounter += 2
-	} else {
-		arg := cpu.Read(cpu.ProgramCounter)
-		address = mode.absoluteAddress(cpu, uint16(arg))
-		cpu.ProgramCounter += 1
-	}
-
+	address := mode.getAddressAndAdvanceProgramCounter(cpu)
 	cpu.Write(address.Value, data)
 }
 
@@ -102,17 +93,7 @@ func (mode AddressingMode) Read(cpu *Cpu) byte {
 		return cpu.Fetch()
 	}
 
-	var address *Address
-	if mode == Absolute || mode == AbsoluteX || mode == AbsoluteY {
-		arg := cpu.Read16(cpu.ProgramCounter)
-		address = mode.absoluteAddress(cpu, arg)
-		cpu.ProgramCounter += 2
-	} else {
-		arg := cpu.Read(cpu.ProgramCounter)
-		address = mode.absoluteAddress(cpu, uint16(arg))
-		cpu.ProgramCounter += 1
-	}
-
+	address := mode.getAddressAndAdvanceProgramCounter(cpu)
 	if address.PageCrossed && mode.isPageCrossMode() {
 		// Simulate extra cycle for page crossing
 	}
@@ -139,4 +120,18 @@ func (mode AddressingMode) isPageCrossMode() bool {
 type Address struct {
 	PageCrossed bool
 	Value       uint16
+}
+
+func (mode AddressingMode) getAddressAndAdvanceProgramCounter(cpu *Cpu) *Address {
+	var address *Address
+	if mode == Absolute || mode == AbsoluteX || mode == AbsoluteY {
+		arg := cpu.Read16(cpu.ProgramCounter)
+		address = mode.absoluteAddress(cpu, arg)
+		cpu.ProgramCounter += 2
+	} else {
+		arg := cpu.Read(cpu.ProgramCounter)
+		address = mode.absoluteAddress(cpu, uint16(arg))
+		cpu.ProgramCounter += 1
+	}
+	return address
 }

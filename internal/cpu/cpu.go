@@ -1,8 +1,6 @@
 package cpu
 
 import (
-	"fmt"
-
 	"github.com/GustavoGarone/ego/internal/bus"
 )
 
@@ -59,7 +57,6 @@ func (c *Cpu) Reset() {
 func (c *Cpu) Run() {
 	for {
 		opcode := c.Fetch()
-		fmt.Printf("Got opcode: %x\n", opcode)
 		if c.Execute(opcode) {
 			break
 		}
