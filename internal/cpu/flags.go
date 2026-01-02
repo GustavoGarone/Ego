@@ -35,30 +35,37 @@ func (c *Cpu) updateNegativeFlag(result byte) {
 	}
 }
 
+// clc clears (assings 0) the carry flag.
 func (c *Cpu) clc() {
 	c.Status &= 0b1111_1110
 }
 
+// sec sets (assings 1) the carry flag.
 func (c *Cpu) sec() {
 	c.Status |= 0b0000_0001
 }
 
+// cli clears the interrupt disable flag.
 func (c *Cpu) cli() {
 	c.Status &= 0b1111_1011
 }
 
+// sei sets the interrupt disable flag.
 func (c *Cpu) sei() {
 	c.Status |= 0b0000_0100
 }
 
+// cld clears the decimal flag.
 func (c *Cpu) cld() {
 	c.Status &= 0b1111_0111
 }
 
+// sed sets the decimal flag.
 func (c *Cpu) sed() {
 	c.Status |= 0b0000_1000
 }
 
+// clv clears the overflow flag.
 func (c *Cpu) clv() {
 	c.Status &= 0b1011_1111
 }
