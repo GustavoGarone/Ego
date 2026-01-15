@@ -13,6 +13,7 @@ func (c *Cpu) jmp(mode AddressingMode) {
 		// it ends in 0xFF (like 0x02FF).
 		highAddress := (pointer & 0xFF00) | uint16(uint8(pointer)+1)
 		high := c.Read(highAddress)
+		// TODO: verify this shift
 		address = uint16(high<<8) | uint16(low)
 	}
 
