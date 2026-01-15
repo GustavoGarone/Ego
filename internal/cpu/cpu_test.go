@@ -1,10 +1,9 @@
 package cpu
 
 import (
-	"testing"
-
 	"github.com/GustavoGarone/ego/internal/bus"
 	"github.com/GustavoGarone/ego/internal/cartridge"
+	"testing"
 )
 
 func TestLda(t *testing.T) {
