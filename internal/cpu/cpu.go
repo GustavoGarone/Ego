@@ -265,6 +265,48 @@ func (c *Cpu) Execute(opcode byte) bool {
 		c.jsr()
 	case 0x60:
 		c.rts()
+	case 0x40:
+		c.rti()
+	case 0x0a:
+		c.asl(Accumulator)
+	case 0x06:
+		c.asl(ZeroPage)
+	case 0x16:
+		c.asl(ZeroPageX)
+	case 0x0e:
+		c.asl(Absolute)
+	case 0x1e:
+		c.asl(AbsoluteX)
+	case 0x4a:
+		c.asl(Accumulator)
+	case 0x46:
+		c.asl(ZeroPage)
+	case 0x56:
+		c.asl(ZeroPageX)
+	case 0x4e:
+		c.asl(Absolute)
+	case 0x5e:
+		c.asl(AbsoluteX)
+	case 0x2a:
+		c.rol(Accumulator)
+	case 0x26:
+		c.rol(ZeroPage)
+	case 0x36:
+		c.rol(ZeroPageX)
+	case 0x2e:
+		c.rol(Absolute)
+	case 0x3e:
+		c.rol(AbsoluteX)
+	case 0x6a:
+		c.ror(Accumulator)
+	case 0x66:
+		c.ror(ZeroPage)
+	case 0x76:
+		c.ror(ZeroPageX)
+	case 0x6e:
+		c.ror(Absolute)
+	case 0x7e:
+		c.ror(AbsoluteX)
 	}
 	return false
 }
