@@ -307,6 +307,58 @@ func (c *Cpu) Execute(opcode byte) bool {
 		c.ror(Absolute)
 	case 0x7e:
 		c.ror(AbsoluteX)
+	case 0x29:
+		c.and(Immediate)
+	case 0x25:
+		c.and(ZeroPage)
+	case 0x35:
+		c.and(ZeroPageX)
+	case 0x2d:
+		c.and(Absolute)
+	case 0x3d:
+		c.and(AbsoluteX)
+	case 0x39:
+		c.and(AbsoluteY)
+	case 0x21:
+		c.and(IndirectX)
+	case 0x31:
+		c.and(IndirectY)
+	case 0x09:
+		c.ora(Immediate)
+	case 0x05:
+		c.ora(ZeroPage)
+	case 0x15:
+		c.ora(ZeroPageX)
+	case 0x0d:
+		c.ora(Absolute)
+	case 0x1d:
+		c.ora(AbsoluteX)
+	case 0x19:
+		c.ora(AbsoluteY)
+	case 0x01:
+		c.ora(IndirectX)
+	case 0x11:
+		c.ora(IndirectY)
+	case 0x49:
+		c.eor(Immediate)
+	case 0x45:
+		c.eor(ZeroPage)
+	case 0x55:
+		c.eor(ZeroPageX)
+	case 0x4d:
+		c.eor(Absolute)
+	case 0x5d:
+		c.eor(AbsoluteX)
+	case 0x59:
+		c.eor(AbsoluteY)
+	case 0x41:
+		c.eor(IndirectX)
+	case 0x51:
+		c.eor(IndirectY)
+	case 0x24:
+		c.bit(ZeroPage)
+	case 0x2c:
+		c.bit(Absolute)
 	}
 	return false
 }
