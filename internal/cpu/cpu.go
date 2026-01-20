@@ -359,6 +359,34 @@ func (c *Cpu) Execute(opcode byte) bool {
 		c.bit(ZeroPage)
 	case 0x2c:
 		c.bit(Absolute)
+	case 0xc9:
+		c.cmp(Immediate)
+	case 0xc5:
+		c.cmp(ZeroPage)
+	case 0xd5:
+		c.cmp(ZeroPageX)
+	case 0xcd:
+		c.cmp(Absolute)
+	case 0xdd:
+		c.cmp(AbsoluteX)
+	case 0xd9:
+		c.cmp(AbsoluteY)
+	case 0xc1:
+		c.cmp(IndirectX)
+	case 0xd1:
+		c.cmp(IndirectY)
+	case 0xe0:
+		c.cpx(Immediate)
+	case 0xe4:
+		c.cpx(ZeroPage)
+	case 0xec:
+		c.cpx(Absolute)
+	case 0xc0:
+		c.cpy(Immediate)
+	case 0xc4:
+		c.cpy(ZeroPage)
+	case 0xcc:
+		c.cpy(Absolute)
 	}
 	return false
 }
