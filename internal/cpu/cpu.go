@@ -399,6 +399,22 @@ func (c *Cpu) Execute(opcode byte) bool {
 		c.tsx()
 	case 0x9a:
 		c.txs()
+	case 0x90:
+		c.bcc(Relative)
+	case 0xb0:
+		c.bcs(Relative)
+	case 0xf0:
+		c.beq(Relative)
+	case 0xd0:
+		c.bne(Relative)
+	case 0x10:
+		c.bpl(Relative)
+	case 0x30:
+		c.bmi(Relative)
+	case 0x50:
+		c.bvc(Relative)
+	case 0x70:
+		c.bvs(Relative)
 	}
 	return false
 }
