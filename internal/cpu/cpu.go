@@ -387,6 +387,18 @@ func (c *Cpu) Execute(opcode byte) bool {
 		c.cpy(ZeroPage)
 	case 0xcc:
 		c.cpy(Absolute)
+	case 0x48:
+		c.pha()
+	case 0x08:
+		c.php()
+	case 0x68:
+		c.pla()
+	case 0x28:
+		c.plp()
+	case 0xba:
+		c.tsx()
+	case 0x9a:
+		c.txs()
 	}
 	return false
 }
