@@ -4,9 +4,8 @@ import (
 	"log"
 	"os"
 
-	"github.com/GustavoGarone/ego/internal/bus"
-	"github.com/GustavoGarone/ego/internal/cartridge"
-	"github.com/GustavoGarone/ego/internal/cpu"
+	"github.com/GustavoGarone/ego/internal/emulator"
+	"github.com/GustavoGarone/ego/internal/nes"
 )
 
 func main() {
@@ -17,13 +16,26 @@ func main() {
 	path := os.Args[1]
 	log.Printf("Loading cartridge with path %s\n", path)
 
-	cart, err := cartridge.ReadFile(path)
+	bytes, err := os.ReadFile(path)
 	if err != nil {
-		log.Fatalf("Failed to read cartridge: %v", err)
+		log.Printf("Failed to load file data: %v", err)
 	}
 
-	bus := bus.New(cart)
-	cpu := cpu.New(bus)
+	emulator, err := loadEmulator(bytes)
+	if err != nil {
+		log.Fatalf("Failed to start emulator: %v", err)
+	}
 
-	cpu.Run()
+	emulator.Run()
+}
+
+func loadEmulator(data []byte) (emulator.Emulator, error) {
+	// forcefully loading a NES emulator because we
+	// dont support others at the moment.
+	emulator, err := nes.New(data)
+	if err != nil {
+		return nil, err
+	}
+
+	return emulator, nil
 }

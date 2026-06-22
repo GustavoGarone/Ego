@@ -1,9 +1,6 @@
 package cartridge
 
-import (
-	"errors"
-	"os"
-)
+import "errors"
 
 // Cartridge contains all the data needed to render or process the game.
 type Cartridge struct {
@@ -14,6 +11,11 @@ type Cartridge struct {
 	// 1 for true, 0 for false
 	Mirroring byte
 }
+
+var (
+	ErrInvalidNesFile = errors.New("Not a valid iNES file")
+	ErrSmallFile      = errors.New("File is smaller than the header claims")
+)
 
 func New(programData, graphicsData []byte) *Cartridge {
 	return &Cartridge{
@@ -29,16 +31,11 @@ func NoGraphics(data []byte) *Cartridge {
 
 // Reads the content in the address. Useful for when the cartridge contains its own mappers.
 func (c *Cartridge) Read(address uint16) byte {
-	if address < 0x8000 {
-		return 0
-	}
-
 	// mirrors for 16kb roms, handles 32kb roms normally
 	normalizedAddress := (address - 0x8000) % uint16(len(c.ProgramData))
 	if int(normalizedAddress) < len(c.ProgramData) {
 		return c.ProgramData[normalizedAddress]
 	}
-
 	return 0
 }
 
@@ -48,15 +45,10 @@ func (c *Cartridge) Write(address uint16, data byte) {
 	// TODO: do nothing for now
 }
 
-// ReadFile returns a cartridge from file data. Useful for CLI or GUI uses.
-func ReadFile(path string) (*Cartridge, error) {
-	bytes, err := os.ReadFile(path)
-	if err != nil {
-		return nil, err
-	}
-
+// Parse parses the ROM data and returns a cartridge from file data.
+func Parse(bytes []byte) (*Cartridge, error) {
 	if len(bytes) < 16 || string(bytes[0:3]) != "NES" || bytes[3] != 0x1a {
-		return nil, errors.New("Not a valid iNES file")
+		return nil, ErrInvalidNesFile
 	}
 
 	programSize := int(bytes[4]) * 16384 // units of 16kb
@@ -78,7 +70,7 @@ func ReadFile(path string) (*Cartridge, error) {
 	graphicsEnd := programEnd + graphicsSize
 
 	if len(bytes) < graphicsEnd {
-		return nil, errors.New("File is smaller than the header claims")
+		return nil, ErrSmallFile
 	}
 
 	return &Cartridge{
