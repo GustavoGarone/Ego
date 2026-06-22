@@ -27,10 +27,8 @@ func TestRun(t *testing.T) {
 func createRom(t *testing.T, data []byte) []byte {
 	t.Helper()
 	rom := make([]byte, 16+16384+8192) // Header + 16KB program + 8KB graphics
-	rom[0] = 'N'
-	rom[1] = 'E'
-	rom[2] = 'S'
-	rom[3] = 0x1a
+
+	copy(rom[0:4], []byte{'N', 'E', 'S', 0x1a})
 	rom[4] = 1 // chunks of program
 	rom[5] = 1 // chunks of graphics
 

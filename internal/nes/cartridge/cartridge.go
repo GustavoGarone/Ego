@@ -12,6 +12,11 @@ type Cartridge struct {
 	Mirroring byte
 }
 
+var (
+	ErrInvalidNesFile = errors.New("Not a valid iNES file")
+	ErrSmallFile      = errors.New("File is smaller than the header claims")
+)
+
 func New(programData, graphicsData []byte) *Cartridge {
 	return &Cartridge{
 		ProgramData:  programData,
@@ -43,7 +48,7 @@ func (c *Cartridge) Write(address uint16, data byte) {
 // Parse parses the ROM data and returns a cartridge from file data.
 func Parse(bytes []byte) (*Cartridge, error) {
 	if len(bytes) < 16 || string(bytes[0:3]) != "NES" || bytes[3] != 0x1a {
-		return nil, errors.New("Not a valid iNES file")
+		return nil, ErrInvalidNesFile
 	}
 
 	programSize := int(bytes[4]) * 16384 // units of 16kb
@@ -65,7 +70,7 @@ func Parse(bytes []byte) (*Cartridge, error) {
 	graphicsEnd := programEnd + graphicsSize
 
 	if len(bytes) < graphicsEnd {
-		return nil, errors.New("File is smaller than the header claims")
+		return nil, ErrSmallFile
 	}
 
 	return &Cartridge{
