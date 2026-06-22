@@ -1,7 +1,7 @@
 package cpu
 
 import (
-	"github.com/GustavoGarone/ego/internal/bus"
+	"github.com/GustavoGarone/ego/internal/nes/bus"
 )
 
 type Cpu struct {
@@ -53,14 +53,12 @@ func (c *Cpu) Reset() {
 	c.ProgramCounter = c.bus.Read16(0xFFFC)
 }
 
-// Runs the Fetch/Decode/Execute loop.
-func (c *Cpu) Run() {
-	for {
-		opcode := c.Fetch()
-		if c.Execute(opcode) {
-			break
-		}
-	}
+// Step performs a single step in the game, returning `true` if the execution
+// loop should be halted.
+func (c *Cpu) Step() bool {
+	opcode := c.Fetch()
+	shouldStop := c.Execute(opcode)
+	return shouldStop
 }
 
 // Fetch gets the current opcode

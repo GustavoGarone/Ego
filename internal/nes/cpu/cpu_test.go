@@ -1,8 +1,8 @@
 package cpu
 
 import (
-	"github.com/GustavoGarone/ego/internal/bus"
-	"github.com/GustavoGarone/ego/internal/cartridge"
+	"github.com/GustavoGarone/ego/internal/nes/bus"
+	"github.com/GustavoGarone/ego/internal/nes/cartridge"
 	"testing"
 )
 
@@ -14,7 +14,10 @@ func TestLda(t *testing.T) {
 	cpu := New(bus)
 	cpu.ProgramCounter = 0x8000
 
-	cpu.Run()
+	for range program {
+		cpu.Step()
+	}
+
 	if cpu.Accumulator != accumulatorParam {
 		t.Errorf("LDA failed to load to accumulator. Got %x want %x", cpu.Accumulator, accumulatorParam)
 	}
@@ -22,23 +25,6 @@ func TestLda(t *testing.T) {
 	got := cpu.Status & want
 	if got != want {
 		t.Errorf("LDA failed to update Status register. Got %b want %b", got, want)
-	}
-}
-
-func TestRun(t *testing.T) {
-	var accumulatorParam uint8 = 0xc0 // -128, 0b1100_0000
-	program := []uint8{0xa9, accumulatorParam, 0xaa, 0x00}
-	cart := cartridge.NoGraphics(program)
-	bus := bus.New(cart)
-	cpu := New(bus)
-	cpu.ProgramCounter = 0x8000
-
-	cpu.Run()
-	if cpu.Accumulator != accumulatorParam {
-		t.Errorf("LDA failed to load to accumulator. Got %x want %x", cpu.Accumulator, accumulatorParam)
-	}
-	if cpu.Accumulator != cpu.X {
-		t.Errorf("Values between accumulator and X differ. Got Acummulator = %x and X = %x", cpu.Accumulator, cpu.X)
 	}
 }
 

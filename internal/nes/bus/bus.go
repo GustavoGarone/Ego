@@ -1,7 +1,7 @@
 package bus
 
 import (
-	"github.com/GustavoGarone/ego/internal/cartridge"
+	"github.com/GustavoGarone/ego/internal/nes/cartridge"
 )
 
 type Bus struct {
